@@ -224,29 +224,28 @@ class HomePageState extends State<HomePage> {
       notificationText: "Chronos is running in the background.",
       notificationImportance: AndroidNotificationImportance.Default,
       notificationIcon: AndroidResource(name: 'chronometre', defType: 'drawable'), // Default is ic_launcher from folder mipmap
+      enableWifiLock: false,
     );
 
     _hasPermissions = await FlutterBackground.initialize(androidConfig: androidConfig);
-    if(!_hasPermissions){
-      if (!_hasPermissions) {
-        await showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                  title: const Text('Permissions needed'),
-                  content: const Text(
-                      'This app cannot function without permission to execute this app in the background. This is required in order to continue the chronometers when the app is not in the foreground.'),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context, 'QUIT');
-                        exit(-1);
-                      },
-                      child: const Text('QUIT'),
-                    ),
-                  ]);
-            });
-      }
+    if (!_hasPermissions) {
+      await showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Permissions needed'),
+            content: const Text(
+              'This app cannot function without permission to execute this app in the background. This is required in order to continue the chronometers when the app is not in the foreground.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context, 'QUIT');
+                  exit(-1);
+                },
+                child: const Text('QUIT'),
+              ),
+            ]);
+        });
     }
     await FlutterBackground.enableBackgroundExecution();
   }
