@@ -2,10 +2,8 @@ import 'widgets/chronometer_widget_stateless.dart';
 import 'models/chrono_class.dart';
 import "io_handler.dart";
 import "dart:async";
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-import 'package:flutter_background/flutter_background.dart';
 
 void main() {
   runApp(const MainApp());
@@ -37,7 +35,6 @@ class HomePageState extends State<HomePage> {
 
   List<Chronometer> _chronometerList = [];
   bool _initialized = false;
-  bool _hasPermissions = false;
   Timer? saveTimer;
   int _currentID = 0;
 
@@ -108,9 +105,6 @@ class HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    if(!_hasPermissions) {
-      _getPermissions();
-    }
     if(_initialized) {
       return Scaffold(
         appBar: AppBar(
@@ -123,10 +117,6 @@ class HomePageState extends State<HomePage> {
             padding: const EdgeInsets.all(20),
             mainAxisSpacing: 30,
             crossAxisSpacing: 30,
-            // children: List.generate(_chronometerList.length, (index) {
-            //     return ChronoWidget(chronometer: _chronometerList[index], onDeleteChrono: _removeChrono);
-            //   }
-            // ),
             children: [
               for (Chronometer c in _chronometerList)
                 ChronoWidgetStateless(
@@ -142,7 +132,7 @@ class HomePageState extends State<HomePage> {
           onPressed: () {
             _showNewChronoDialog(context);
             },
-          tooltip: 'Add chronometer',
+          tooltip: 'Ajouter un chronomètre',
           child: const Icon(Icons.add),
         ),
       );
@@ -164,12 +154,12 @@ class HomePageState extends State<HomePage> {
       builder: (BuildContext context) {
         return StatefulBuilder(builder: (context, StateSetter setState) {
           return AlertDialog(
-            title: const Text("Create chronometer"),
+            title: const Text("Créer un chronomètre"),
             content: TextField(
               onChanged: _changeName,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
-                hintText: 'Name of the chronometer',
+                hintText: 'Nom du chronomètre',
               ),
             ),
             actions: <Widget>[
@@ -182,10 +172,10 @@ class HomePageState extends State<HomePage> {
                 onPressed: () {
                   _pickColorDialog(context, setState);
                 },
-                child: const Text('Change color'),
+                child: const Text('Couleur'),
               ),
               ElevatedButton(
-                child: const Text('Create'),
+                child: const Text('Créer'),
                 onPressed: () {
                   _addChrono();
                   Navigator.of(context).pop();
@@ -203,7 +193,7 @@ class HomePageState extends State<HomePage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Pick a color'),
+          title: const Text('Choix de la couleur'),
           content: SingleChildScrollView(
             child: BlockPicker(
               pickerColor: _currentColor,
@@ -216,37 +206,5 @@ class HomePageState extends State<HomePage> {
         );
       },
     );
-  }
-
-  Future<void> _getPermissions() async {
-    const androidConfig = FlutterBackgroundAndroidConfig(
-      notificationTitle: "Chronos",
-      notificationText: "Chronos is running in the background.",
-      notificationImportance: AndroidNotificationImportance.Default,
-      notificationIcon: AndroidResource(name: 'chronometre', defType: 'drawable'), // Default is ic_launcher from folder mipmap
-      enableWifiLock: false,
-    );
-
-    _hasPermissions = await FlutterBackground.initialize(androidConfig: androidConfig);
-    if (!_hasPermissions) {
-      await showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text('Permissions needed'),
-            content: const Text(
-              'This app cannot function without permission to execute this app in the background. This is required in order to continue the chronometers when the app is not in the foreground.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context, 'QUIT');
-                  exit(-1);
-                },
-                child: const Text('QUIT'),
-              ),
-            ]);
-        });
-    }
-    await FlutterBackground.enableBackgroundExecution();
   }
 }

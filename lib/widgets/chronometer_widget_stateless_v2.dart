@@ -1,31 +1,17 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:timers/models/chrono_class.dart';
+import 'package:timers/models/chrono_class_v2.dart';
 
 class ChronoWidgetStateless extends StatelessWidget {
   final Chronometer chronometer;
   final void Function(int) onDeleteChrono;
-  final void Function(int) onStartChrono;
-  final void Function(int) onStopChrono;
-  final void Function(int) onResetChrono;
 
   const ChronoWidgetStateless({
     super.key,
     required this.chronometer,
     required this.onDeleteChrono,
-    required this.onStartChrono,
-    required this.onStopChrono,
-    required this.onResetChrono,
   });
-
-  String getTimeString() {
-    // Compute the hours, minutes, and seconds from the elapsed time in seconds
-    int hours = (chronometer.currentTime / 3600).floor();
-    int minutes = ((chronometer.currentTime % 3600) / 60).floor();
-    int seconds = (chronometer.currentTime % 60).floor();
-    return "${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}";
-  }
 
   Future<void> _chronoManagementDialog(BuildContext context) {
     return showDialog<void>(
@@ -50,7 +36,7 @@ class ChronoWidgetStateless extends StatelessWidget {
                   ),
                   child: const Text('Réinitialiser'),
                   onPressed: () {
-                    onResetChrono(chronometer.id);
+                    chronometer.reset();
                     Navigator.of(context).pop();
                   },
                 )
@@ -85,9 +71,9 @@ class ChronoWidgetStateless extends StatelessWidget {
       child: InkWell(
         onTap: () {
           if(chronometer.isRunning) {
-            onStopChrono(chronometer.id);
+            chronometer.stop();
           } else {
-            onStartChrono(chronometer.id);
+            chronometer.start();
           }
         },
         onLongPress: () {
@@ -127,7 +113,7 @@ class ChronoWidgetStateless extends StatelessWidget {
                         fontWeight: FontWeight.bold),
                     children: <TextSpan>[
                       TextSpan(
-                        text: getTimeString(),
+                        text: chronometer.getRunningTimeString(),
                         style: const TextStyle(
                             color: Colors.black, fontWeight: FontWeight.bold)
                       ),
