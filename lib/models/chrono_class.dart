@@ -73,7 +73,9 @@ class Chronometer {
     }
     // Deal with current period if is running
     if(isRunning){
-      totalRunningDuration += DateTime.now().difference(startTimestamps[startTimestamps.length-1]);
+      DateTime lastStart = startTimestamps[startTimestamps.length-1];
+      DateTime lastEvent = lastStart.isBefore(lastReset) ? lastReset : lastStart;
+      totalRunningDuration += DateTime.now().difference(lastEvent);
     }
     return totalRunningDuration;
   }
