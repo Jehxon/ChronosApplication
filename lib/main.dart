@@ -1,6 +1,6 @@
 import 'widgets/chronometer_widget_stateless.dart';
 import 'models/chrono_class.dart';
-import "io_handler.dart";
+import 'models/io_handler.dart';
 import "dart:async";
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
@@ -31,11 +31,10 @@ class HomePage extends StatefulWidget {
   HomePageState createState() => HomePageState();
 }
 
-class HomePageState extends State<HomePage> {
+class HomePageState extends State<HomePage> with WidgetsBindingObserver{
 
   List<Chronometer> _chronometerList = [];
   bool _initialized = false;
-  Timer? saveTimer;
   Timer? updateDisplayTimer;
   int _currentID = 0;
 
@@ -82,14 +81,36 @@ class HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
 
-    _getData();  //call async function.
-    saveTimer = Timer.periodic(const Duration(seconds: 5), (timer) { //TODO : add widget observer to save only when needed
-      saveChronosToFiles(_chronometerList);
-    });
+    _getData();
     updateDisplayTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
       _updateDisplay();
     });
+  }
+
+  @override
+  void dispose(){
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    switch (state) {
+      case AppLifecycleState.paused:
+        saveChronoListToFiles(_chronometerList);
+        break;
+      case AppLifecycleState.inactive:
+        break;
+      case AppLifecycleState.resumed:
+        saveChronoListToFiles(_chronometerList);
+        break;
+      case AppLifecycleState.detached:
+        break;
+    }
   }
 
   @override

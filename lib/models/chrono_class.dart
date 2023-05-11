@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import "io_handler.dart";
 
 class Chronometer {
   int id;
@@ -30,6 +31,7 @@ class Chronometer {
   start(){
     isRunning = true;
     startTimestamps.add(DateTime.now());
+    saveOneChronoToFile(this);
   }
 
   stop(){
@@ -37,10 +39,12 @@ class Chronometer {
     stopTimestamps.add(DateTime.now());
     int n = startTimestamps.length;
     sessionsDurations.add(stopTimestamps[n-1].difference(startTimestamps[n-1]));
+    saveOneChronoToFile(this);
   }
 
   reset(){
     lastReset = DateTime.now();
+    saveOneChronoToFile(this);
   }
 
   List<Duration> getSessionsDurations(){
