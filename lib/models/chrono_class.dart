@@ -21,8 +21,8 @@ class Chronometer {
     Map<String, dynamic> json = jsonDecode(jsonString);
     String name = json['name'];
     Color color = Color(json['color']);
-    List<DateTime> startTimestamps = json['startTs'].map((e) => DateTime.parse(e)).toList();
-    List<DateTime> stopTimestamps = json['stopTs'].map((e) => DateTime.parse(e)).toList();
+    List<DateTime> startTimestamps = json['startTs'].map((e) => DateTime.parse(e)).toList().cast<DateTime>();
+    List<DateTime> stopTimestamps = json['stopTs'].map((e) => DateTime.parse(e)).toList().cast<DateTime>();
     DateTime lastReset = DateTime.parse(json['lastReset']);
     return Chronometer(id, name, color, startTimestamps: startTimestamps, stopTimestamps: stopTimestamps, lastReset: lastReset);
   }

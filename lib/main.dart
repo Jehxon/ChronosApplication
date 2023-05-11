@@ -52,6 +52,8 @@ class HomePageState extends State<HomePage> {
 
   void _removeChrono(int id) {
     setState(() {
+      Chronometer c = _chronometerList.where((element) => element.id == id).first;
+      deleteSavedChrono(c.name);
       _chronometerList.removeWhere((element) => element.id == id);
     });
   }
@@ -80,8 +82,9 @@ class HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+
     _getData();  //call async function.
-    saveTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+    saveTimer = Timer.periodic(const Duration(seconds: 5), (timer) { //TODO : add widget observer to save only when needed
       saveChronosToFiles(_chronometerList);
     });
     updateDisplayTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) {

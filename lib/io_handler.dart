@@ -12,28 +12,31 @@ Future<String> getDirPath() async {
   return directory.path;
 }
 
+String getChronoFilePath(String path, String name){
+  return "$path/saved_$name.chronos";
+}
+
+void deleteSavedChrono(String name) async {
+  final path = await getDirPath();
+  File f = File(getChronoFilePath(path, name));
+  f.delete();
+}
+
 Future<List<File>> getExistingFilesHandle() async {
   final path = await getDirPath();
   List<File> ret = [];
   for (var entity in chronosGlob.listSync(root: path)) {
-    print(entity.path);
     ret.add(File(entity.path));
   }
   return ret;
 }
 
-Future<File> getFileHandle(String name) async {
-  final path = await getDirPath();
-  return File('$path/$name');
-}
-
 void saveChronosToFiles(List<Chronometer> chronoList) async {
   final path = await getDirPath();
-
   for(final c in chronoList){
     String name = c.name;
     String content = c.toJSONString();
-    File f = File('$path/$name');
+    File f = File(getChronoFilePath(path, name));
     f.writeAsString(content);
   }
 }
@@ -52,6 +55,7 @@ Future<List<Chronometer>> loadChronosFromFiles() async {
     return chronoList;
   } catch (e) {
     // If encountering an error, return empty
+    // print(e);
     return [];
   }
 }
