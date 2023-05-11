@@ -36,6 +36,7 @@ class HomePageState extends State<HomePage> {
   List<Chronometer> _chronometerList = [];
   bool _initialized = false;
   Timer? saveTimer;
+  Timer? updateDisplayTimer;
   int _currentID = 0;
 
   // create some values
@@ -44,27 +45,9 @@ class HomePageState extends State<HomePage> {
 
 
   void _getData() async {
-    _chronometerList = await loadStateFromFile(_updateDisplay);
+    _chronometerList = await loadChronosFromFiles();
     _currentID = _chronometerList.length;
     setState(() => _initialized = true);
-  }
-
-  void _startChrono(int id) {
-    setState(() {
-      _chronometerList.where((element) => element.id == id).first.startTimer();
-    });
-  }
-
-  void _stopChrono(int id) {
-    setState(() {
-      _chronometerList.where((element) => element.id == id).first.stopTimer();
-    });
-  }
-
-  void _resetChrono(int id) {
-    setState(() {
-      _chronometerList.where((element) => element.id == id).first.resetTimer();
-    });
   }
 
   void _removeChrono(int id) {
@@ -75,7 +58,7 @@ class HomePageState extends State<HomePage> {
 
   void _addChrono(){
     setState(() {
-      _chronometerList = [..._chronometerList, Chronometer(_currentID, 0, _currentName, _currentColor, _updateDisplay)];
+      _chronometerList = [..._chronometerList, Chronometer(_currentID, _currentName, _currentColor)];
     });
     _currentID++;
   }
@@ -98,8 +81,11 @@ class HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _getData();  //call async function.
-    saveTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      saveStateToFile(_chronometerList);
+    saveTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      saveChronosToFiles(_chronometerList);
+    });
+    updateDisplayTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
+      _updateDisplay();
     });
   }
 
@@ -121,10 +107,7 @@ class HomePageState extends State<HomePage> {
               for (Chronometer c in _chronometerList)
                 ChronoWidgetStateless(
                     chronometer: c,
-                    onDeleteChrono: _removeChrono,
-                    onStartChrono: _startChrono,
-                    onStopChrono: _stopChrono,
-                    onResetChrono: _resetChrono)
+                    onDeleteChrono: _removeChrono)
             ],
           ),
         ),
