@@ -1,4 +1,5 @@
-import 'widgets/chronometer_widget_stateless.dart';
+import 'widgets/chronometer/chronometer_widget_stateless.dart';
+import 'widgets/nav_bar/nav_bar.dart';
 import 'models/chrono_class.dart';
 import 'models/io_handler.dart';
 import "dart:async";
@@ -117,6 +118,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver{
   Widget build(BuildContext context) {
     if(_initialized) {
       return Scaffold(
+        drawer: NavBar(),
         appBar: AppBar(
           title: const Text('Chronos'),
         ),
