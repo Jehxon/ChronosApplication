@@ -57,7 +57,8 @@ class Chronometer {
   String getRunningTimeString() {
     // Compute the days, hours, minutes, seconds and milliseconds of running time since last reset
     Duration duration = getRunningDuration();
-    String formattedDuration = duration.inDays > 0 ? '${duration.inDays.toString().padLeft(2, '0')}:' : ''
+    String days = duration.inDays > 0 ? '${duration.inDays.toString()} jour${duration.inDays == 1 ? '' : 's'} ' : '';
+    String formattedDuration = '$days'
         '${(duration.inHours % 24).toString().padLeft(2, '0')}:'
         '${(duration.inMinutes % 60).toString().padLeft(2, '0')}:'
         '${(duration.inSeconds % 60).toString().padLeft(2, '0')}.'
