@@ -1,8 +1,8 @@
-import 'preferences.dart';
+import 'models/preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:timers/models/chrono_class.dart';
 import 'package:timers/models/io_handler.dart';
-import 'package:timers/widgets/nav_bar/nav_bar.dart';
+import 'package:timers/home_page.dart';
 
 List<Chronometer> chronometerList = [];
 int currentID = 0;
