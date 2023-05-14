@@ -1,15 +1,13 @@
 import "dart:async";
 import 'package:flutter/material.dart';
 import 'package:timers/widgets/chronometer/chronometer_widget_stateless.dart';
-import 'package:timers/widgets/nav_bar/nav_bar.dart';
 import 'package:timers/models/chrono_class.dart';
 import 'package:timers/models/io_handler.dart';
 import 'package:timers/models/color_picker.dart';
 import 'package:timers/main.dart';
 
 class ChronometerListPage extends StatefulWidget {
-  final Function(ThemeData) onChangeTheme;
-  const ChronometerListPage({required this.onChangeTheme, super.key});
+  const ChronometerListPage({super.key});
 
   @override
   State<ChronometerListPage> createState() => _ChronometerListPageState();
@@ -60,12 +58,15 @@ class _ChronometerListPageState extends State<ChronometerListPage> {
   }
 
   @override
+  void dispose() {
+    updateDisplayTimer?.cancel();
+    // TODO: implement dispose
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: NavBar(onChangeTheme: widget.onChangeTheme,),
-      appBar: AppBar(
-        title: const Text('Chronos'),
-      ),
       body: Center(
         child: GridView.count(
           crossAxisCount: 2,

@@ -1,8 +1,8 @@
 import 'preferences.dart';
 import 'package:flutter/material.dart';
-import 'package:timers/widgets/chronometer/chronometer_list.dart';
 import 'package:timers/models/chrono_class.dart';
 import 'package:timers/models/io_handler.dart';
+import 'package:timers/widgets/nav_bar/nav_bar.dart';
 
 List<Chronometer> chronometerList = [];
 int currentID = 0;
@@ -66,16 +66,17 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     if (initialized) {
       return MaterialApp(
-        title: 'Chronos',
-        theme: theme,
-        home: ChronometerListPage(onChangeTheme: (newTheme) {
-          setState(() {
-            theme = newTheme;
-          });
-        },),
-      );
+          title: 'Chronos',
+          theme: theme,
+          home: HomePage(
+            onChangeTheme: (newTheme) {
+              setState(() {
+                theme = newTheme;
+              });
+            },
+          ));
     } else {
-      return const CircularProgressIndicator();
+      return const Center(child: CircularProgressIndicator());
     }
   }
 }

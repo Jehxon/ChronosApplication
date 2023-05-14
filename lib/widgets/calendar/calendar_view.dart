@@ -3,8 +3,10 @@ import 'package:table_calendar/table_calendar.dart';
 import 'calendar_utils.dart';
 
 class TableBasicsExample extends StatefulWidget {
+  const TableBasicsExample({super.key});
+
   @override
-  _TableBasicsExampleState createState() => _TableBasicsExampleState();
+  State<TableBasicsExample> createState() => _TableBasicsExampleState();
 }
 
 class _TableBasicsExampleState extends State<TableBasicsExample> {
@@ -15,9 +17,6 @@ class _TableBasicsExampleState extends State<TableBasicsExample> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('TableCalendar - Basics'),
-      ),
       body: TableCalendar(
         firstDay: kFirstDay,
         lastDay: kLastDay,
