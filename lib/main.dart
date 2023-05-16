@@ -1,3 +1,4 @@
+import 'package:intl/date_symbol_data_local.dart';
 import 'models/preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:timers/models/chrono_class.dart';
@@ -6,6 +7,22 @@ import 'package:timers/home_page.dart';
 
 List<Chronometer> chronometerList = [];
 int currentID = 0;
+Color mainColor = Colors.teal;
+List<Function(Color)> colorChangeCallbacks = [];
+
+void addThemeChangeCallback(Function(Color) func) {
+  colorChangeCallbacks.add(func);
+}
+void removeThemeChangeCallback(Function(Color) func) {
+  colorChangeCallbacks.remove(func);
+}
+void changeAppColor(Color c) {
+  mainColor = c;
+  savePreferences();
+  for(int i = 0; i < colorChangeCallbacks.length; i++){
+    colorChangeCallbacks[i](c);
+  }
+}
 
 void main() async {
   runApp(const MainApp());
@@ -20,13 +37,15 @@ class MainApp extends StatefulWidget {
 
 class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
   bool initialized = false;
-  ThemeData theme = ThemeData(primarySwatch: toMaterialColor(MAIN_COLOR));
+  ThemeData theme = ThemeData(primarySwatch: toMaterialColor(mainColor));
 
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
     getData();
     super.initState();
+    initializeDateFormatting();
+    addThemeChangeCallback(updateColorCallback);
   }
 
   void getData() async {
@@ -35,13 +54,20 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
     currentID = chronometerList.length;
     setState(() {
       initialized = true;
-      theme = ThemeData(primarySwatch: toMaterialColor(MAIN_COLOR));
+      theme = ThemeData(primarySwatch: toMaterialColor(mainColor));
+    });
+  }
+
+  void updateColorCallback(Color c){
+    setState(() {
+      theme = ThemeData(primarySwatch: toMaterialColor(c));
     });
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    removeThemeChangeCallback(updateColorCallback);
     super.dispose();
   }
 
@@ -68,13 +94,8 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
       return MaterialApp(
           title: 'Chronos',
           theme: theme,
-          home: HomePage(
-            onChangeTheme: (newTheme) {
-              setState(() {
-                theme = newTheme;
-              });
-            },
-          ));
+          home: const HomePage()
+      );
     } else {
       return const Center(child: CircularProgressIndicator());
     }

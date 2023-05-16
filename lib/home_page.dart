@@ -1,28 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:timers/models/preferences.dart';
 import 'package:timers/models/color_picker.dart';
 import 'package:timers/widgets/calendar/calendar_view.dart';
 import 'package:timers/widgets/chronometer/chronometer_list.dart';
+import 'main.dart';
 
 class HomePage extends StatefulWidget {
-  final Function(ThemeData) onChangeTheme;
-  const HomePage({required this.onChangeTheme, super.key});
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  int selectedIndex = 0;
+  int selectedIndex = 1;
 
   static final List<Widget> widgetOptions = <Widget>[
     const ChronometerListPage(),
-    const TableBasicsExample(),
+    const CalendarPage(),
   ];
 
   void changePage(int index) {
     Navigator.pop(context);
-    if(index == selectedIndex) return;
+    if (index == selectedIndex) return;
     setState(() {
       selectedIndex = index;
     });
@@ -39,7 +38,7 @@ class _HomePageState extends State<HomePage> {
           children: [
             DrawerHeader(
               decoration: BoxDecoration(
-                color: MAIN_COLOR,
+                color: mainColor,
                 image: const DecorationImage(
                     fit: BoxFit.fill,
                     image: AssetImage('assets/paysageCalmeSmall.jpg')
@@ -72,10 +71,8 @@ class _HomePageState extends State<HomePage> {
               leading: const Icon(Icons.color_lens),
               title: const Text('Changer le thème'),
               onTap: () async {
-                MAIN_COLOR = await pickColor(context, MAIN_COLOR);
-                savePreferences();
-                widget.onChangeTheme(
-                    ThemeData(primarySwatch: toMaterialColor(MAIN_COLOR)));
+                Color pickedColor = await pickColor(context, mainColor);
+                changeAppColor(pickedColor);
               },
             ),
             const Divider(),

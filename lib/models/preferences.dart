@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timers/main.dart';
 
-Color MAIN_COLOR = Colors.teal;
 late final SharedPreferences prefs;
 
 Future<void> initPreferences() async {
@@ -12,12 +12,12 @@ Future<void> initPreferences() async {
 void loadPreferences() {
   final int? colorValue = prefs.getInt('main_color');
   if(colorValue != null){
-    MAIN_COLOR = Color(colorValue);
+    mainColor = Color(colorValue);
   }
 }
 
 void savePreferences() async {
-  await prefs.setInt('main_color', MAIN_COLOR.value);
+  await prefs.setInt('main_color', mainColor.value);
 }
 
 MaterialColor toMaterialColor(Color color) {
