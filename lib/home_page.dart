@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:timers/models/color_picker.dart';
 import 'package:timers/widgets/calendar/calendar_view.dart';
-import 'package:timers/widgets/chronometer/chronometer_list.dart';
+import 'package:timers/widgets/chronometer/chronometer_view.dart';
 import 'main.dart';
 
 class HomePage extends StatefulWidget {

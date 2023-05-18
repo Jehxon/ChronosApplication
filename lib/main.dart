@@ -1,9 +1,12 @@
-import 'package:intl/date_symbol_data_local.dart';
-import 'models/preferences.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:syncfusion_localizations/syncfusion_localizations.dart';
+import 'models/preferences.dart';
 import 'package:timers/models/chrono_class.dart';
 import 'package:timers/models/io_handler.dart';
 import 'package:timers/home_page.dart';
+
 
 List<Chronometer> chronometerList = [];
 int currentID = 0;
@@ -25,7 +28,7 @@ void changeAppColor(Color c) {
 }
 
 void main() async {
-  runApp(const MainApp());
+  initializeDateFormatting().then((_) => runApp(const MainApp()));
 }
 
 class MainApp extends StatefulWidget {
@@ -44,7 +47,6 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     getData();
     super.initState();
-    initializeDateFormatting();
     addThemeChangeCallback(updateColorCallback);
   }
 
@@ -92,6 +94,17 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     if (initialized) {
       return MaterialApp(
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+            SfGlobalLocalizations.delegate
+          ],
+          supportedLocales: const [
+            // Locale('en'),
+            Locale('fr', 'FR'),
+          ],
+          locale: const Locale('fr', 'FR'),
           title: 'Chronos',
           theme: theme,
           home: const HomePage()

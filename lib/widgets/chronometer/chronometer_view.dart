@@ -90,6 +90,10 @@ class _ChronometerListPageState extends State<ChronometerListPage> {
       ),
     );
   }
+  Future<void> changeCurrentColor(StateSetter setState) async {
+    Color chosenColor = await pickColor(context, currentColor);
+    setState(() => currentColor = chosenColor);
+  }
 
   Future<void> newChronoDialog(BuildContext context) {
     return showDialog<void>(
@@ -106,15 +110,19 @@ class _ChronometerListPageState extends State<ChronometerListPage> {
               ),
             ),
             actions: <Widget>[
-              Icon(
-                Icons.circle,
-                color: currentColor,
-                size: 40,
+              IconButton(
+                icon: Icon(
+                  Icons.circle,
+                  color: currentColor,
+                  size: 40,
+                ),
+                onPressed: () async {
+                  await changeCurrentColor(setState);
+                },
               ),
               ElevatedButton(
                 onPressed: () async {
-                  Color chosenColor = await pickColor(context, currentColor);
-                  setState(() => currentColor = chosenColor);
+                  await changeCurrentColor(setState);
                 },
                 child: const Text('Couleur'),
               ),
