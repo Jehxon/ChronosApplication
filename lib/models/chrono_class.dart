@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'calendar_events.dart';
 import "io_handler.dart";
 
 class Chronometer {
@@ -45,6 +46,17 @@ class Chronometer {
   reset(){
     lastReset = DateTime.now();
     saveOneChronoToFile(this);
+  }
+
+  List<CalendarEvent> toCalendarEventList() {
+    List<CalendarEvent> events = <CalendarEvent>[];
+    for(int i = 0; i < stopTimestamps.length; i++){
+      events.add(CalendarEvent(name, startTimestamps[i], stopTimestamps[i], color, false));
+    }
+    if(isRunning) {
+      events.add(CalendarEvent(name, startTimestamps[startTimestamps.length-1], DateTime.now(), color, false));
+    }
+    return events;
   }
 
   List<Duration> getSessionsDurations(){

@@ -62,7 +62,11 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
 
   void updateColorCallback(Color c){
     setState(() {
-      theme = ThemeData(primarySwatch: toMaterialColor(c));
+      MaterialColor matColor = toMaterialColor(c);
+      theme = ThemeData(
+        primarySwatch: matColor
+      );
+      // theme = ThemeData.from(colorScheme: ColorScheme.fromSeed(seedColor: mainColor));
     });
   }
 
