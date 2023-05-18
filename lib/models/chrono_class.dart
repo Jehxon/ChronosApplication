@@ -32,7 +32,7 @@ class Chronometer {
   start(){
     isRunning = true;
     startTimestamps.add(DateTime.now());
-    saveOneChronoToFile(this);
+    save();
   }
 
   stop(){
@@ -40,11 +40,15 @@ class Chronometer {
     stopTimestamps.add(DateTime.now());
     int n = startTimestamps.length;
     sessionsDurations.add(stopTimestamps[n-1].difference(startTimestamps[n-1]));
-    saveOneChronoToFile(this);
+    save();
   }
 
   reset(){
     lastReset = DateTime.now();
+    save();
+  }
+
+  save(){
     saveOneChronoToFile(this);
   }
 

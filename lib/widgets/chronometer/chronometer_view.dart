@@ -60,7 +60,6 @@ class _ChronometerListPageState extends State<ChronometerListPage> {
   @override
   void dispose() {
     updateDisplayTimer?.cancel();
-    // TODO: implement dispose
     super.dispose();
   }
 

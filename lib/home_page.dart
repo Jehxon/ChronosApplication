@@ -12,7 +12,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int selectedIndex = 1;
+  int selectedIndex = 0;
 
   static final List<Widget> widgetOptions = <Widget>[
     const ChronometerListPage(),
@@ -54,11 +54,11 @@ class _HomePageState extends State<HomePage> {
                 changePage(0);
               },
             ),
-            ListTile(
-              leading: const Icon(Icons.insert_chart),
-              title: const Text('Statistiques'),
-              onTap: () {},
-            ),
+            // ListTile(
+            //   leading: const Icon(Icons.insert_chart),
+            //   title: const Text('Statistiques'),
+            //   onTap: () {},
+            // ),
             ListTile(
               leading: const Icon(Icons.calendar_month_outlined),
               title: const Text('Agenda'),

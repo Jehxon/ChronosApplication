@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:timers/models/chrono_class.dart';
+import 'package:timers/models/confirm_dialog.dart';
 
 class ChronoWidgetStateless extends StatelessWidget {
   final Chronometer chronometer;
@@ -47,10 +48,13 @@ class ChronoWidgetStateless extends StatelessWidget {
                       backgroundColor: MaterialStatePropertyAll<Color>(chronometer.color)
                   ),
                   child: const Text('Supprimer'),
-                  onPressed: () {
+                  onPressed: () async {
+                    bool confirm = await showConfirmDialog(context, chronometer.color);
+                    if(confirm) {
+                      onDeleteChrono(chronometer.id);
+                    }
+                    if (!context.mounted) return;
                     Navigator.of(context).pop();
-                    onDeleteChrono(chronometer.id);
-                    // dispose();
                   },
                 ),
               ),
