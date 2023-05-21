@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:timers/models/color_picker.dart';
 import 'package:timers/widgets/calendar/calendar_view.dart';
 import 'package:timers/widgets/chronometer/chronometer_view.dart';
+import 'package:timers/widgets/statistics/statistic_view.dart';
 import 'main.dart';
 
 class HomePage extends StatefulWidget {
@@ -17,6 +18,7 @@ class _HomePageState extends State<HomePage> {
   static final List<Widget> widgetOptions = <Widget>[
     const ChronometerListPage(),
     const CalendarPage(),
+    const StatisticsPage(),
   ];
 
   void changePage(int index) {
@@ -54,11 +56,13 @@ class _HomePageState extends State<HomePage> {
                 changePage(0);
               },
             ),
-            // ListTile(
-            //   leading: const Icon(Icons.insert_chart),
-            //   title: const Text('Statistiques'),
-            //   onTap: () {},
-            // ),
+            ListTile(
+              leading: const Icon(Icons.insert_chart),
+              title: const Text('Statistiques'),
+              onTap: () {
+                changePage(2);
+              },
+            ),
             ListTile(
               leading: const Icon(Icons.calendar_month_outlined),
               title: const Text('Agenda'),

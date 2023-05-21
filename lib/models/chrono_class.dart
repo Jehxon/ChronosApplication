@@ -3,6 +3,32 @@ import 'dart:convert';
 import 'calendar_events.dart';
 import "io_handler.dart";
 
+class TimeSpan {
+  DateTime start;
+  DateTime stop;
+  TimeSpan(this.start, this.stop);
+}
+
+String formatDurationToString(Duration duration){
+  String days = duration.inDays > 0 ? '${duration.inDays.toString()} jour${duration.inDays == 1 ? '' : 's'} ' : '';
+  String formattedDuration = '$days'
+      '${(duration.inHours % 24).toString().padLeft(2, '0')}:'
+      '${(duration.inMinutes % 60).toString().padLeft(2, '0')}:'
+      '${(duration.inSeconds % 60).toString().padLeft(2, '0')}.'
+      '${((duration.inMilliseconds % 1000)/100).floor().toString().padLeft(1, '0')}';
+  return formattedDuration;
+}
+
+Duration computeOverlap(DateTime start1, DateTime stop1, DateTime start2, DateTime stop2){
+  if (start1.isAfter(stop2) || stop1.isBefore(start2)) {
+    return Duration.zero;
+  }
+  DateTime overlapStart = start1.isAfter(start2) ? start1 : start2;
+  DateTime overlapStop = stop1.isBefore(stop2) ? stop1 : stop2;
+  Duration overlapDuration = overlapStop.difference(overlapStart);
+  return overlapDuration;
+}
+
 class Chronometer {
   int id;
   String name = "";
@@ -72,33 +98,148 @@ class Chronometer {
 
   String getRunningTimeString() {
     // Compute the days, hours, minutes, seconds and milliseconds of running time since last reset
-    Duration duration = getRunningDuration();
-    String days = duration.inDays > 0 ? '${duration.inDays.toString()} jour${duration.inDays == 1 ? '' : 's'} ' : '';
-    String formattedDuration = '$days'
-        '${(duration.inHours % 24).toString().padLeft(2, '0')}:'
-        '${(duration.inMinutes % 60).toString().padLeft(2, '0')}:'
-        '${(duration.inSeconds % 60).toString().padLeft(2, '0')}.'
-        '${((duration.inMilliseconds % 1000)/100).floor().toString().padLeft(1, '0')}';
-    return formattedDuration;
+    Duration duration = getRunningDurationSinceLastReset();
+    return formatDurationToString(duration);
   }
 
-  Duration getRunningDuration(){
-    Duration totalRunningDuration = Duration.zero;
+  Duration getRunningDurationSinceLastReset(){
+    Duration runningDuration = Duration.zero;
 
     for (int i = 0; i < stopTimestamps.length; i++){
       if(stopTimestamps[i].isBefore(lastReset)) continue;
       if(startTimestamps[i].isBefore(lastReset)) {
-        totalRunningDuration -= lastReset.difference(startTimestamps[i]);
+        runningDuration -= lastReset.difference(startTimestamps[i]);
       }
-      totalRunningDuration += sessionsDurations[i];
+      runningDuration += sessionsDurations[i];
     }
     // Deal with current period if is running
     if(isRunning){
       DateTime lastStart = startTimestamps[startTimestamps.length-1];
       DateTime lastEvent = lastStart.isBefore(lastReset) ? lastReset : lastStart;
-      totalRunningDuration += DateTime.now().difference(lastEvent);
+      runningDuration += DateTime.now().difference(lastEvent);
+    }
+    return runningDuration;
+  }
+
+  Duration getTotalRunningDuration(){
+    Duration totalRunningDuration = Duration.zero;
+
+    for (int i = 0; i < sessionsDurations.length; i++){
+      totalRunningDuration += sessionsDurations[i];
+    }
+    // Deal with current period if is running
+    if(isRunning){
+      DateTime lastStart = startTimestamps[startTimestamps.length-1];
+      totalRunningDuration += DateTime.now().difference(lastStart);
     }
     return totalRunningDuration;
+  }
+
+  Duration getTotalDurationOnSpecificWeekDay(int weekDay) {
+    Duration totalDuration = Duration.zero;
+    for (int i = 0; i < stopTimestamps.length; i++) {
+      DateTime start = startTimestamps[i];
+      DateTime stop = stopTimestamps[i];
+
+      DateTime lastWeekDay = DateTime(start.year, start.month, start.day - (start.weekday - weekDay) % 7);
+      DateTime nextWeekDay = DateTime(stop.year, stop.month, stop.day - (stop.weekday - weekDay) % 7 + 7);
+
+      List<TimeSpan> weekDaysInBetween = [];
+      DateTime t = lastWeekDay;
+      while(t.isBefore(nextWeekDay)){
+        weekDaysInBetween.add(TimeSpan(t, t.add(const Duration(days: 1))));
+        t = t.add(const Duration(days: 7));
+      }
+
+      for(TimeSpan ts in weekDaysInBetween){
+        totalDuration += computeOverlap(ts.start, ts.stop, start, stop);
+      }
+    }
+
+    if(isRunning){
+      DateTime start = startTimestamps[startTimestamps.length-1];
+      DateTime stop = DateTime.now();
+
+      DateTime lastWeekDay = DateTime(start.year, start.month, start.day - (start.weekday - weekDay) % 7);
+      DateTime nextWeekDay = DateTime(stop.year, stop.month, stop.day - (stop.weekday - weekDay) % 7 + 7);
+      List<TimeSpan> weekDaysInBetween = [];
+      DateTime t = lastWeekDay;
+      while(t.isBefore(nextWeekDay)){
+        weekDaysInBetween.add(TimeSpan(t, t.add(const Duration(days: 1))));
+        t = t.add(const Duration(days: 7));
+      }
+
+      for(TimeSpan ts in weekDaysInBetween){
+        totalDuration += computeOverlap(ts.start, ts.stop, start, stop);
+      }
+    }
+    return totalDuration;
+  }
+
+  Duration getOverlappingRunningTime(DateTime periodStart, DateTime periodStop) {
+    Duration totalDuration = Duration.zero;
+    DateTime now = DateTime.now();
+
+    for (int i = 0; i < stopTimestamps.length; i++) {
+      DateTime start = startTimestamps[i];
+      DateTime stop = stopTimestamps[i];
+      totalDuration += computeOverlap(start, stop, periodStart, periodStop);
+    }
+    if(isRunning){
+      DateTime start = startTimestamps[startTimestamps.length-1];
+      totalDuration += computeOverlap(start, now, periodStart, periodStop);
+    }
+    return totalDuration;
+  }
+
+  Duration getTotalDurationToday() {
+    DateTime now = DateTime.now();
+    DateTime todayStart = DateTime(now.year, now.month, now.day);
+    return getOverlappingRunningTime(todayStart, now);
+  }
+
+  Duration getTotalDurationThisWeek() {
+    DateTime now = DateTime.now();
+    DateTime weekStart = DateTime(now.year, now.month, now.day - now.weekday - 1);
+    return getOverlappingRunningTime(weekStart, now);
+  }
+
+  String getStatistics(){
+    String currentRunningTime = getRunningTimeString();
+    Duration totalRunningTime = getTotalRunningDuration();
+    Duration todayRunningTime = getTotalDurationToday();
+    Duration thisWeekRunningTime = getTotalDurationThisWeek();
+
+    Duration mondaysDuration = getTotalDurationOnSpecificWeekDay(DateTime.monday);
+    Duration tuesdaysDuration = getTotalDurationOnSpecificWeekDay(DateTime.tuesday);
+    Duration wednesdaysDuration = getTotalDurationOnSpecificWeekDay(DateTime.wednesday);
+    Duration thursdaysDuration = getTotalDurationOnSpecificWeekDay(DateTime.thursday);
+    Duration fridaysDuration = getTotalDurationOnSpecificWeekDay(DateTime.friday);
+    Duration saturdaysDuration = getTotalDurationOnSpecificWeekDay(DateTime.saturday);
+    Duration sundaysDuration = getTotalDurationOnSpecificWeekDay(DateTime.sunday);
+
+    double mondayPercentage = totalRunningTime.inSeconds == 0 ? 0 : mondaysDuration.inSeconds / totalRunningTime.inSeconds * 100;
+    double tuesdayPercentage = totalRunningTime.inSeconds == 0 ? 0 : tuesdaysDuration.inSeconds / totalRunningTime.inSeconds * 100;
+    double wednesdayPercentage = totalRunningTime.inSeconds == 0 ? 0 : wednesdaysDuration.inSeconds / totalRunningTime.inSeconds * 100;
+    double thursdayPercentage = totalRunningTime.inSeconds == 0 ? 0 : thursdaysDuration.inSeconds / totalRunningTime.inSeconds * 100;
+    double fridayPercentage = totalRunningTime.inSeconds == 0 ? 0 : fridaysDuration.inSeconds / totalRunningTime.inSeconds * 100;
+    double saturdayPercentage = totalRunningTime.inSeconds == 0 ? 0 : saturdaysDuration.inSeconds / totalRunningTime.inSeconds * 100;
+    double sundayPercentage = totalRunningTime.inSeconds == 0 ? 0 : sundaysDuration.inSeconds / totalRunningTime.inSeconds * 100;
+
+    String statistics =
+      "Temps en cours : $currentRunningTime\n"
+      "Total du temps actif : ${formatDurationToString(totalRunningTime)}\n"
+      "Temps passé aujourd'hui : ${formatDurationToString(todayRunningTime)}\n"
+      "Temps passé cette semaine : ${formatDurationToString(thisWeekRunningTime)}\n\n"
+      "Temps passé par jour :\n"
+      "\t\u2022 lundis : ${formatDurationToString(mondaysDuration)}\t\t\t(${mondayPercentage.toStringAsFixed(2)}%)\n"
+      "\t\u2022 mardis : ${formatDurationToString(tuesdaysDuration)}\t\t\t(${tuesdayPercentage.toStringAsFixed(2)}%)\n"
+      "\t\u2022 mercredis : ${formatDurationToString(wednesdaysDuration)}\t\t\t(${wednesdayPercentage.toStringAsFixed(2)}%)\n"
+      "\t\u2022 jeudis : ${formatDurationToString(thursdaysDuration)}\t\t\t(${thursdayPercentage.toStringAsFixed(2)}%)\n"
+      "\t\u2022 vendredis : ${formatDurationToString(fridaysDuration)}\t\t\t(${fridayPercentage.toStringAsFixed(2)}%)\n"
+      "\t\u2022 samedis : ${formatDurationToString(saturdaysDuration)}\t\t\t(${saturdayPercentage.toStringAsFixed(2)}%)\n"
+      "\t\u2022 dimanches : ${formatDurationToString(sundaysDuration)}\t\t\t(${sundayPercentage.toStringAsFixed(2)}%)\n";
+    return statistics;
   }
 
   static List<int> getDaysHourMinSecMilli(Duration d){
