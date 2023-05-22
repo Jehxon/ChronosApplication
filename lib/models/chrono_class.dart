@@ -78,6 +78,10 @@ class Chronometer {
     saveOneChronoToFile(this);
   }
 
+  deleteSavedFile(){
+    deleteSavedChrono(name);
+  }
+
   List<CalendarEvent> toCalendarEventList() {
     List<CalendarEvent> events = <CalendarEvent>[];
     for(int i = 0; i < stopTimestamps.length; i++){

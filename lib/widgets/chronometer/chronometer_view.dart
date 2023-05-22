@@ -2,7 +2,6 @@ import "dart:async";
 import 'package:flutter/material.dart';
 import 'package:timers/widgets/chronometer/chronometer_widget_stateless.dart';
 import 'package:timers/models/chrono_class.dart';
-import 'package:timers/models/io_handler.dart';
 import 'package:timers/models/color_picker.dart';
 import 'package:timers/main.dart';
 
@@ -24,17 +23,16 @@ class _ChronometerListPageState extends State<ChronometerListPage> {
     setState(() {
       Chronometer c =
           chronometerList.where((element) => element.id == id).first;
-      deleteSavedChrono(c.name);
+      c.deleteSavedFile();
       chronometerList.removeWhere((element) => element.id == id);
     });
   }
 
   void addChrono() {
     setState(() {
-      chronometerList = [
-        ...chronometerList,
-        Chronometer(currentID, currentName, currentColor)
-      ];
+      Chronometer newChrono = Chronometer(currentID, currentName, currentColor);
+      newChrono.save();
+      chronometerList.add(newChrono);
     });
     currentID++;
   }
@@ -103,9 +101,15 @@ class _ChronometerListPageState extends State<ChronometerListPage> {
             title: const Text("Créer un chronomètre"),
             content: TextField(
               onChanged: changeName,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
                 hintText: 'Nom du chronomètre',
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: currentColor,
+                    width: 2.0,
+                  ),
+                ),
               ),
             ),
             actions: <Widget>[
@@ -123,14 +127,16 @@ class _ChronometerListPageState extends State<ChronometerListPage> {
                 onPressed: () async {
                   await changeCurrentColor(setState);
                 },
+                style: ButtonStyle(backgroundColor: MaterialStatePropertyAll(currentColor)),
                 child: const Text('Couleur'),
               ),
               ElevatedButton(
-                child: const Text('Créer'),
                 onPressed: () {
                   addChrono();
                   Navigator.of(context).pop();
                 },
+                style: ButtonStyle(backgroundColor: MaterialStatePropertyAll(currentColor)),
+                child: const Text('Créer'),
               ),
             ],
           );
